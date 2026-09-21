@@ -1,0 +1,53 @@
+# Ignore everything by default; governance files are allowlisted below.
+*
+
+# Root governance files and project records.
+!/.gitignore
+/*.md
+!/scripts/
+!/scripts/governance_lint.py
+
+# Governance skills registered in README.md.
+!/skills/
+!/skills/skill-creator/
+!/skills/skill-creator/**
+!/skills/reflection-evolution/
+!/skills/reflection-evolution/**
+!/skills/system-refactor/
+!/skills/system-refactor/**
+!/skills/workbuddy-function-control/
+!/skills/workbuddy-function-control/**
+
+# machine/ 是治理文件 MACHINE.md 所依赖的文件夹，纳入治理体系版本控制。
+!/machine/
+!/machine/**
+
+# 以下各项必须始终排除，即使位于已放行的目录内（白名单按最后匹配者生效）。
+__pycache__/
+*.pyc
+*.pyo
+*.fallback.bak
+_skillhub_meta.json
+_meta.json
+
+# 凭据与本地环境文件：真值一律不入库，只放行样例模板。
+# 恢复 34a5e8c 之前就存在的排除意图——放行区是「整目录放行」，缺了这段则
+# 出现在 skills/<skill>/ 内的 .env、私钥会被 git add -A 静默收走。
+*.env
+!.env.example
+*.pem
+*.key
+*.p12
+*.log
+*.tmp
+*.temp
+
+# 个人档案与身份文件：本仓（私有）跟踪这三份，让它们有版本历史与备份；
+# 派生公开仓不含它们，改用 examples/ 下的样例模板（边界见 GIT.md §1）。
+# 下面三条排除规则仍保留——公开克隆里若被放入真值，git add 会拦住，不至于误提交。
+# 判据（能否唯一确定用户本人）见 USER.md 的隐私偏好节（该文件未随公开仓上传），审核流程见 GIT.md §2。
+/USER.md
+/MEMORY.md
+/IDENTITY.md
+!/examples/
+!/examples/**
