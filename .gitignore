@@ -2,8 +2,11 @@
 *
 
 # Root governance files and project records.
+# 放行行必须以 `!` 开头：上面的 `*` 已忽略一切，少了 `!` 的行等于「排除」。
+# 2026-09-22 修：`/*.md` 少写 `!`，根治理文件其实从未进入放行名单——工作仓因这些
+# 文件早已被跟踪而看不出，只有新建仓库（派生公开副本）时才显形：静默漏掉 11 个根文件。
 !/.gitignore
-/*.md
+!/*.md
 !/scripts/
 !/scripts/governance_lint.py
 

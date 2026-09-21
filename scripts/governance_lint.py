@@ -3,6 +3,7 @@
 """治理文件只读巡检。
 
 检查 frontmatter、Markdown 断链、锚点和 README 名单一致性。
+名单项若已标注「公开仓不含」，在派生公开副本中缺失属预期，只报 INFO 不报 WARN。
 machine/ 下的软件文件（由 MACHINE.md 管理、不入 README 名单）只参与断链与锚点检查。
 README 是当前的名单制格式，因此脚本不要求职责、加载位置或引用表。
 """
@@ -170,9 +171,10 @@ def anchor_fragment(fragment):
 
 def parse_system_map(path):
     if not os.path.isfile(path):
-        return None, None
+        return None, None, None
     root_names = set()
     skill_names = set()
+    absent_names = set()  # 已标注「公开仓不含」的项：派生公开副本里本就不存在
     section = None
     for line in read(path).splitlines():
         heading = line.strip().lower()
@@ -184,13 +186,17 @@ def parse_system_map(path):
             continue
         if not line.lstrip().startswith("-"):
             continue
-        name = line.lstrip()[1:].strip().strip("`")
+        raw = line.lstrip()[1:].strip()
+        note = "".join(re.findall(r"[（(][^）)]*[）)]", raw))
+        name = raw.strip("`")
         name = re.sub(r"（.*?）|\(.*?\)$", "", name).strip().strip("`")
         if section == "root" and re.fullmatch(r"[A-Za-z0-9_.-]+\.md", name):
             root_names.add(name)
+            if "公开仓不含" in note or "未随公开仓上传" in note:
+                absent_names.add(name)
         elif section == "skill" and re.fullmatch(r"[A-Za-z0-9_.-]+", name):
             skill_names.add(name)
-    return root_names, skill_names
+    return root_names, skill_names, absent_names
 
 
 def check_frontmatter(paths, report):
@@ -271,7 +277,7 @@ def governance_skill_candidate(frontmatter):
 
 def check_map(root, docs, skills, frontmatters, report):
     map_path = os.path.join(root, "README.md")
-    mapped_roots, mapped_skills = parse_system_map(map_path)
+    mapped_roots, mapped_skills, public_absent = parse_system_map(map_path)
     if mapped_roots is None:
         report.add("WARN", "map", "README.md", "名单不存在或无法解析")
         return
@@ -282,6 +288,10 @@ def check_map(root, docs, skills, frontmatters, report):
     for name in missing:
         report.add("WARN", "map", "README.md", f"根治理文件未登记：{name}")
     for name in stale:
+        if name in public_absent:
+            report.add("INFO", "map", "README.md",
+                       f"名单中的文件不在本副本（名单内已标注「公开仓不含」）：{name}")
+            continue
         report.add("WARN", "map", "README.md", f"名单中的文件不存在：{name}")
 
     actual_skill_dirs = {os.path.basename(os.path.dirname(path)) for path in skills}
