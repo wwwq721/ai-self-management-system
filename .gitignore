@@ -18,8 +18,6 @@
 !/skills/reflection-evolution/**
 !/skills/system-refactor/
 !/skills/system-refactor/**
-!/skills/workbuddy-function-control/
-!/skills/workbuddy-function-control/**
 
 # machine/ 是治理文件 MACHINE.md 所依赖的文件夹，纳入治理体系版本控制。
 !/machine/
