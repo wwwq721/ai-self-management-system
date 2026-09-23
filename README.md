@@ -99,6 +99,5 @@ read_when:
 - skill-creator
 - reflection-evolution
 - system-refactor
-- workbuddy-function-control
 
 （requested_by: 用户, source: 整合操作 2026-08-23）
