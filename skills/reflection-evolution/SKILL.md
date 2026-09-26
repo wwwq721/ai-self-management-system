@@ -1,10 +1,6 @@
 ---
 name: reflection-evolution
 description: 分析错误并转化为持久行为改进 — 定位根因、制定纠正规则、更新治理文件。用户纠正你的任何做法、指出错误、要求复盘总结、或给出不同方案时必须使用；同一会话中同类错误被指出两次或以上时主动使用。用户纠正后不得只做口头道歉直接继续，必须先加载本 skill 走完完整 Workflow。
-hooks:
-  after_complete:
-    - trigger: skill-creator
-      mode: auto
 metadata:
   importance: 2
   platform: common

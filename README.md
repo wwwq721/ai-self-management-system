@@ -44,8 +44,7 @@ read_when:
 ├── IMPORTANCE.md          重要性分级（PSU + CRR）
 ├── MACHINE.md             机器、平台与软件事实的总入口
 ├── AGENT-CONTEXT.md       上下文稳定原则
-├── FILE-AUDIT-RECORDS.md  文件读取审计规范
-├── FUTURE.md              尚未成型的治理概念
+├── FUTURE.md              对未来版本的预言
 ├── 文件夹目录.md           本工程工作文件夹的目录记录
 ├── USER.md                用户档案（私有内容：私有仓保留，公开仓不含）
 ├── MEMORY.md              教训暂存（同上）
@@ -86,7 +85,6 @@ read_when:
 - USER.md（公开仓不含：用户档案，示例见 examples/USER.example.md）
 - MACHINE.md
 - AGENT-CONTEXT.md
-- FILE-AUDIT-RECORDS.md
 - FUTURE.md
 - README.md（本名单）
 

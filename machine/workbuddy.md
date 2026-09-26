@@ -76,7 +76,7 @@
 | 强制首读 | `OPERATIONS.md`、`FREEDOM.md`、`IMPORTANCE.md` | 平台不注入 → 启动工作前必须主动读原文 |
 | 强制首读（触发后） | `AGENT-CONTEXT.md`、`MACHINE.md` 及 `machine/` 下当前软件文件 | 处理加载 / 注入 / 上下文，**或用到本机工具时先读——含委派子代理（`Agent` 工具）** |
 | 按需（触发） | `machine/workbuddy.md`「子代理成本与模型选择」节 | **要选 `model` 档 / 估积分 / 并行铺开时**才读；同一文件其余部分按上一行的触发读 |
-| 按需 | `GIT.md`、`README.md`、`FILE-AUDIT-RECORDS.md` | 按任务类型与各自 `read_when` 取用 |
+| 按需 | `GIT.md`、`README.md` | 按任务类型与各自登记的触发机制取用 |
 | 触发 | 治理型 skill（`skills/` 下）、非当前软件的 `machine/*.md` | 触发条件满足时加载；非当前软件文件不读 |
 
 ## 本程序记忆机制（事实）
@@ -120,7 +120,7 @@
 
 | 官方机制 | 官方定义文件 / 落点 | 触发入口 | 能力边界 | 能承接的治理规则 |
 |---|---|---|---|---|
-| Skill（技能插件） | `[官方]` 规范 https://open.workbuddy.cn/docs/skill —— `{skill-name}/SKILL.md` ＋ `references/`、`scripts/`、`templates/`；frontmatter 必填 description / description_zh / description_en / version / author，可选 name / allowed-tools / disable-model-invocation / user-invocable。`[实测]` 本机落点 `C:\Users\纳\.workbuddy\skills\<name>\SKILL.md`（16 个 skill 目录，2026-09-23 实测） | `[官方]` 用户消息文本匹配 `description` 自动调用，或对话中召唤；`disable-model-invocation: true` 仅手动触发，`user-invocable: false` 仅供模型内部调用 | `[官方]` 常驻只有 name＋description，正文按需载入；启用/关闭记在用户全局配置、**不改动技能原文件**，关闭≠卸载；**无「文件类型自动触发」** | 有触发条件的治理流程 → 治理型 skill（skill-creator、reflection-evolution、system-refactor）；其 `description` 未覆盖的触发场景＝该规则在本平台不存在 |
+| Skill（技能插件） | `[官方]` 规范 https://open.workbuddy.cn/docs/skill —— `{skill-name}/SKILL.md` ＋ `references/`、`scripts/`、`templates/`；frontmatter 必填 description / description_zh / description_en / version / author，可选 name / allowed-tools / disable-model-invocation / user-invocable。`[实测]` 本机落点 `C:\Users\纳\.workbuddy\skills\<name>\SKILL.md`（**目录数会变、不在此写死**：2026-09-23 实测 16 个，2026-09-26 已 18 个——以 `README.md` 名单和实际清点为准） | `[官方]` 用户消息文本匹配 `description` 自动调用，或对话中召唤；`disable-model-invocation: true` 仅手动触发，`user-invocable: false` 仅供模型内部调用 | `[官方]` 常驻只有 name＋description，正文按需载入；启用/关闭记在用户全局配置、**不改动技能原文件**，关闭≠卸载；**无「文件类型自动触发」** | 有触发条件的治理流程 → 治理型 skill（skill-creator、reflection-evolution、system-refactor）；其 `description` 未覆盖的触发场景＝该规则在本平台不存在 |
 | MCP（MCP 插件；连接器＝「MCP＋Skill」或「CLI＋Skill」的打包分发，一个连接器只能选一种方案） | `[官方]` 连接器规范 https://open.workbuddy.cn/docs/connector —— `connector-meta.json`＋`mcp.json`＋`icon.svg`＋可选 `skills/`；CLI 方案改用 `cli.json`；管理页 https://www.workbuddy.cn/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Connector 。`[实测]` 本机 `C:\Users\纳\.workbuddy\mcp.json`（2 个 Server：playwright、lighthouse-ops）；连接器实例 `connectors\<id>\{mcp.json, connector-states.json}`；连接器自带 skill 在 `connectors\skills\connector-*`；市场缓存 `connectors-marketplace\`；信任记录 `mcp-approvals.json` | `[官方]` 客户端左侧「连接器」→ 点 ＋ → 扫码或授权 → 平台自动挂载工具；自定义连接器按 MCP 配置 | `[官方]` 一个连接器只配一个 MCP Server；远程须 HTTPS（SSE／streamableHttp）；单次请求建议 30 秒内；**每个连接器独立授权、不主动定时抓取、不超出已有权限范围** | 外部数据来源按 `cite-sources` 标来源等级；可用性核查按 [../OPERATIONS.md](../OPERATIONS.md)「核查、覆盖度与可用项」穷举 |
 | Hook（钩子插件） | `[官方]` 插件系统页「在特定时机自动执行操作」（同上 URL）。`[实测]` 本机实例 `plugins\cache\local\tool-guardian\1.0.0\`：`.codebuddy-plugin\plugin.json` 以 `"hooks": "hooks/hooks.json"` 声明，hooks.json 定义 PreToolUse（matcher `Bash` → `guard-tool.sh`，`GUARD_MODE=block`）与 PostToolUse（matcher `Bash` → `audit-install.sh`） | `[官方]` 插件被加载后由工具调用事件触发。与 skill frontmatter 的 `hooks`（须 `context: fork`）是**两套机制**，勿混 | **本机可用性未验证**：该实例日志只有 2026-07-06 两条，早于它 2026-08-10 的安装时间，自安装以来零触发记录 → 不得作为某条治理规则的唯一执行入口 | 设计意图＝承接「安装 / 下载审计」（OPERATIONS 第 6 节）与危险命令拦截；**当前实际仍靠模型自律**，见本节末尾缺口 |
 | Agent（智能体插件；专家 / 专家团） | `[官方]` 专家规范 https://open.workbuddy.cn/docs/expert —— `my-expert/{.codebuddy-plugin/plugin.json, avatars/, agents/<name>.md, README.md}`，`plugin.json` 的 `expertType` 为 `agent` 或 `team`。`[实测]` 本机自建 `experts\custom\<id>\`；市场安装包在 `plugins\cache\experts\<name>\<ver>\` | `[官方]` 左侧「专家·技能·连接器」→ 专家市场 → 召唤（角色切换）；专家团由团长拆解、并行执行、整合交付。`[实测]` **不经 Agent 工具委派**（2026-08-20 探针 `Task agent <name> is not available`） | `[官方]` 专家本身不主动获取系统权限，仅处理你主动提供的对话与上传文件；配备 Skill／MCP 时才在授权下间接访问；创建后名称不可改；专家团消耗为单专家数倍 | 领域任务的可选载体，**不构成依赖**——规则不能以「委派给某专家」为执行入口 |
@@ -136,7 +136,7 @@
 
 | 解释器 | 路径 | 依赖状态（2026-09-20 实测） |
 |---|---|---|
-| **托管 venv —— 跑脚本首选** | `C:\Users\纳\.workbuddy\binaries\python\envs\default\Scripts\python.exe` | Python 3.13.14；已装 PyYAML 6.0.2、ruamel.yaml 0.19.1、python-docx 1.2.0、PyMuPDF(fitz) 1.28.0、Pillow 12.3.0、rapidocr（新包名） |
+| **托管 venv —— 跑脚本首选** | `C:\Users\纳\.workbuddy\binaries\python\envs\default\Scripts\python.exe` | Python 3.13.14；已装 PyYAML 6.0.2、ruamel.yaml 0.19.1、python-docx 1.2.0、PyMuPDF(fitz) 1.28.0、Pillow 12.3.0、rapidocr（新包名）、paddleocr 3.7.0 ＋ paddlepaddle 3.3.1（2026-09-22 实测 `import paddleocr` 通过）；**未装 easyocr** |
 | 托管 base | `C:\Users\纳\.workbuddy\binaries\python\versions\3.13.12\python.exe` | 目录名写 3.13.12、实报 3.13.14；**无 PyYAML**、无上述第三方库，只有标准库 |
 | 系统（fallback） | `C:\Users\纳\AppData\Local\Microsoft\WindowsApps\python{,3,w}.exe` | Python 3.14.6；**无 PyYAML** |
 
@@ -172,6 +172,36 @@
 **版本脆弱性（必须留意）**：`binaries\PortableGit\current` **不存在**（该目录下只有 `versions\` 与 `versions\1.2.0\`，均为 reparse 目录）→ PortableGit 下**没有**与版本无关的入口；任何写死 `versions/1.2.0/…` 的路径都会在 PortableGit 升级后立即指向不存在的 exe。**故一律用 helper 名 `manager` 引用，不写版本化绝对路径。**
 
 **取令牌（不提取、不记录内容）**：`printf "protocol=https\nhost=github.com\n" | GIT_TERMINAL_PROMPT=0 GCM_INTERACTIVE=never git -c credential.helper= -c credential.helper=manager credential fill`；管道与推送的完整写法见 `skills/git-workflow` §5（该 skill 未随公开仓上传）。GCM 自带 `get`/`store`/`erase`/`configure`/`diagnose`/`github list|login|logout`，排障可用 `git-credential-manager diagnose`。
+
+## 外部工具与数据根落点（本机事实）
+
+登记各 skill 依赖、但落点随机器而变的工具与数据根。**「某工具装在哪、某书库在哪」的单一权威在本节**——其他 skill 与文档只引用本节，不各自硬编码绝对路径（同「Python 解释器」「Git 凭据」两节的处理；依据 [../MACHINE.md](../MACHINE.md)「迁移流程」第 3 条：治理内容出现硬编码机器信息即违规）。
+
+| 项 | 值（2026-09-03 安装／2026-09-22 复核） |
+|---|---|
+| MinerU CLI（`mineru-open-api.exe`） | `C:\Users\纳\.workbuddy\binaries\node\workspace\node_modules\mineru-open-api-win32-x64\bin\mineru-open-api.exe`；装在托管 node 工作区、**非全局、不在 PATH**，调用一律用该绝对路径，路径含空格的参数要加引号 |
+| MinerU 工作区（升级落点） | `C:\Users\纳\.workbuddy\binaries\node\workspace`；升级在该目录内 `npm install mineru-open-api`，**不用 `npm install -g`** |
+| qmd CLI（`qmd.cmd`） | `C:\Users\纳\.workbuddy\binaries\node\workspace\node_modules\.bin\qmd.cmd`；qmd v2.8.3（本地文档搜索引擎），装在托管 node 工作区、**不在 PATH**，调用一律用该绝对路径 |
+| 数学书库根 | `C:\Users\纳\Desktop\数学\Math_MD\<学科短码>\<书名>\`（学科短码小写：top=拓扑、at=代数拓扑、fa=泛函等；qmd 集合 `math` 的根即此目录） |
+
+**迁移时整表按新机实况重采，不沿用旧值**；本书库的归档约定与 qmd 检索细节见 `skills/pdf-text-extractor/references/library-qmd.md`，MinerU CLI 用法见同 skill 的 `references/mineru-cloud.md`。
+
+## Git 代理与本机网络事实（本机事实）
+
+本机 git 走网络时命中一组环境特有的通道行为。**「本机代理怎么注入、直连通不通、本机有无 `gh`」的单一权威在本节**——`git-workflow` skill §6 只留跨平台写法并指向本节。
+
+**① 代理注入（2026-09-15 定位，2026-09-22 复核）**：本环境**每条命令都被重新注入** `http_proxy=127.0.0.1:<随机端口>`（端口每次变；`$env:http_proxy=''`、`Remove-Item Env:http_proxy` 都清不掉）。**变量名大小写会变**：2026-09-22 实测注入的是大写 `HTTP_PROXY`/`HTTPS_PROXY`，只设小写 `no_proxy` 因此绕不过去——诊断第一步先把六个代理变量（大小写各三）全部打印出来。该代理对 `github.com:443` 的 TLS 不通（`CONNECT` 建成后 TLS 握手挂起约 19.5s 才失败）。**本机走 TUN 模式，直连通常能到 github.com 真实 IP**；2026-09-22 也实测到两条路同时失败（TCP 443 可连、TLS 被 RST）＝网络侧阻断、非配置问题。诊断顺序与 `no_proxy` 解法见 `git-workflow` §6「代理下 git 不通」。
+
+**② 本机无 `gh`（2026-09-20 实测）**：直接调用 `gh` 报 `FileNotFoundError: WinError 2`。建远程仓库改用 GitHub API（`POST /repos`），请求用 Python `urllib` ＋ `ProxyHandler({})` 显式绕过代理直连；令牌仍走 GCM 取法、只留内存不落盘。完整步骤见 `git-workflow` §6。
+
+**③ `refs/remotes` 不落地 / 被写坏（2026-09-15、09-21、09-23 实测）**：本仓 `git fetch` 报 `* [new branch] main -> origin/main`，但 `refs/remotes/origin/main` **不落地**（`refs/remotes` 为空、无 `packed-refs`）→ `status -sb` 与 `branch -vv` 恒显示 `[gone]`，**推送不受影响**。核对是否真推上去用 `git ls-remote origin refs/heads/main` 与 `git rev-parse HEAD` 比对，不信 `[gone]`。**被拦的是 git 自己的写路径，不是文件系统**：`git update-ref refs/remotes/origin/main <sha>` 会 exit=0 却静默不生效；而在 `.git/refs/remotes/origin/` 下（目录不存在先 `os.makedirs`）用 Python **直接写 loose ref 文件**（`io.open(..., "w", encoding="ascii", newline="\n")`，内容 `<sha>\n`）立即生效，`status -sb` 随即由 `[gone]` 变回正常。
+　变体：fetch 前 `git branch -a` 还能看到、fetch 后引用整个消失（`packed-refs` 也不存在）——先用 `git ls-remote origin <分支>` 拿云端 sha 对比 `HEAD`，别纠结修 ref。若确需改 `packed-refs`，必须用保留原 LF 换行的纯文本替换（改前备份）；`WriteAllLines` 写成 CRLF 会让 git 把 `\r` 当引用名的一部分 → 该 ref 立刻变 `[gone]`。
+
+**④ 取令牌与推送的 shell 限制（2026-09-19 实测）**：本环境 bash shim 可能缺 `grep`/`cut`/`head`（管道取令牌会 127 失败），PowerShell 工具则完全不回显 stdout（跑完只见 exit 0，无法确认结果）。稳妥做法：用 Python `subprocess` 一段式完成「GCM 取令牌 → 解析 `password=` → 清 helper ＋ `url.insteadOf` 内联令牌 ＋ `no_proxy` push」，令牌只留内存不落盘。注意新版 GCM 二进制子命令是 `git-credential-manager get`（`credential fill` 是 git 自己的 plumbing，直接喂给 GCM 会报 unrecognized command）。
+
+**⑤ 通道失败的判据分层（2026-09-23 实测）**：`ls-remote` 通而 `push` 超时 → 传输层间歇，换 `-c http.version=HTTP/1.1` 值得一试；**`ls-remote` 也断 → 整段通道不可用**，换手段与重试都无意义，停手、稍后再推。顺序是「先 `ls-remote` 探路 → 通则换 HTTP/1.1 推 → 不通即停」，不做盲重试。**重试次数不解决问题**：通道坏掉时重 5 次还是 7 次都是在同一处重复同一失败。
+
+**⑥ `dubious ownership`（2026-09-19 实测）**：仓库由沙箱用户创建后，当前用户跑 git 报 `detected dubious ownership`；`git config --global --add safe.directory '<仓库绝对路径>'` 一次即解——只对报错中的精确路径做，不把宽泛目录加入全局信任。
 
 ## 运行时坑（实测）
 
@@ -209,9 +239,6 @@
   - **规避（两例同）**：写入含特殊字符的文本先落成脚本文件；写完核对体积与关键串，体积异常增幅就是信号。
   - **2026-09-21 修改记号**：本条原为「PowerShell 专用」单条；通则已升入 OPERATIONS，此处只留本程序实例与证据。
 
-- **Git 推送链路与 `refs/remotes`（2026-09-21 实测）**：本会话环境注入本地代理（`HTTP(S)_PROXY=http://127.0.0.1:<端口>`，本次为 60355，端口随会话变）。习惯性的 `no_proxy=github.com` 直连**可能**失败（`Connection was reset` / 443 超时），而改走代理**也可能**失败（`CONNECT tunnel failed, response 502`）——**两个方向都要试**，本轮即直连失败后一次重试成功。另：本仓 `git fetch` 会报 `* [new branch] main -> origin/main`，但 `refs/remotes/origin/main` **不落地**（`refs/remotes` 为空、无 `packed-refs`），故 `status -sb` 与 `branch -vv` 恒显示 `[gone]`——**推送不受影响**。核对是否真推上去，用 `git ls-remote origin refs/heads/main` 与 `git rev-parse HEAD` 比对，**不要相信 `[gone]`**。
-  - **补（2026-09-23 实测，同故障的第三种表现）：`push` 超时 ≠ 通道封死，先换 HTTP/1.1，别重复重试。** 该次直连 `push` 连续 21 s 超时（`Failed to connect to github.com:443 after 2110x ms`），但**同一分钟内** `git ls-remote origin refs/heads/main` 正常返回、TCP 443 探测（`github.com` / `api.github.com` / `ssh.github.com` / `codeload`）**全通** → 判据是链路间歇／传输层被干扰，不是按域名阻断（与 09-23 早先那次「只有 `github.com:443` 不通」的结论**不同**，那次两个方向都断，**两次都得以当场实测为准**）。加 `-c http.version=HTTP/1.1` 后**一次推成**（`3194bef..0d51921`）。代理方向那次仍报 `CONNECT tunnel failed, response 502`。（单次对照，未复查；下次超时先试 HTTP/1.1，再谈重试。）
-  - **补（2026-09-23 19:2x 的反例，与上条互为对照）：HTTP/1.1 不是通解——先用 `ls-remote` 探路，再决定要不要试推。** 该次 `push`（已带 `-c http.version=HTTP/1.1`）三连败（`Recv failure: Connection was reset` ×1、21 s 超时 ×2），**且同窗口 `git ls-remote origin refs/heads/main` 也失败**。据此可把判据分层：`ls-remote` 通而 `push` 超时 → 传输层间歇，换 HTTP/1.1 值得一试；**`ls-remote` 也断 → 整段通道不可用，换手段与重试都无意义，停手、稍后再推**。所以顺序是「先 `ls-remote` 探路 → 通则换 HTTP/1.1 推 → 不通即停」，不做盲重试。（单次观察。）
 
 ## 子代理委派（要点）
 

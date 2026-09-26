@@ -21,7 +21,7 @@ metadata:
 - [references/output-patterns.md](references/output-patterns.md)：需要固定输出格式、模板或示例时读取。
 - [scripts/init_skill.py](scripts/init_skill.py)：新建 skill 时运行。
 - [scripts/quick_validate.py](scripts/quick_validate.py)：交付或打包前验证 skill 目录。
-- [scripts/package_skill.py](scripts/package_skill.py)：需要生成可分发 `.skill` 包时运行。
+- [scripts/package_skill.py](scripts/package_skill.py)：需要生成可分发 `.skill` 包时运行。打包默认全收目录内所有文件；skill 根下可放 `.packageignore`（gitignore 风格 glob）排除凭据与私人信息，另有 `.git` / `__pycache__` / `.packageignore` 恒定排除，被跳过的文件会打印出来。
 - [LICENSE.txt](LICENSE.txt)：需要确认许可证条款时读取。
 - [../../OPERATIONS.md](../../OPERATIONS.md)：任何创建、修改或删除前读取，遵守操作门禁、范围和记录要求。
 - [../../FREEDOM.md](../../FREEDOM.md)：决定规则具体程度、压缩方式或是否写死步骤时读取。
@@ -84,7 +84,7 @@ Skill 是模块化、自包含的能力包，用专门知识、工作流、工�
 
 1. 完整读取目标 `SKILL.md`；读取 [OPERATIONS.md](../../OPERATIONS.md)；读取当前官方 [Agent Skills specification](https://agentskills.io/specification)。目标平台或环境事实会影响字段、工具或路径时，再读取 [MACHINE.md](../../MACHINE.md) 及对应软件事实文件。
    同时读取目标 Skill 工作文件夹根目录的 `文件夹目录.md`；尚无此文件时，先按本文件的格式创建并填写，再继续操作。
-2. 搜索当前平台可用的相似 Skill，确认这是新建、更新、合并、拆分还是仅修正文案；检查将要移除的 reference、脚本或资源是否仍有调用者。
+2. 搜索当前平台可用的相似 Skill，确认这是新建、更新、合并、拆分还是仅修正文案；检查将要移除的 reference、脚本或资源是否仍有调用者。**逐条回答一个必答项：拟加或拟改的职责，是否已有 skill 承担？** 有重合就走更新或合并，不新建重复入口（判据见 BP #6、#6a）；答案要写出来，不只在心里过一遍。
 3. 明确用户要求的结果、范围和授权。缺少的信息只有在确实影响方案时才询问，不用默认结构替代用户意图。
 
 ## Workflow
@@ -100,6 +100,8 @@ Skill 是模块化、自包含的能力包，用专门知识、工作流、工�
 从用例推导可复用的 `scripts/`、`references/` 和 `assets/`。只有重复编写、技术细节、稳定模板或确定性执行确实受益时才添加资源；不要创建占位文件或“以后可能有用”的文档。
 
 需要从已有 Skill 形成新 Skill 时，先读 [references/migration.md](references/migration.md)，再确定是合并既有能力、薄包装还是重写。
+
+方案落定前自检一句：本次要加的能力，是否已有 skill 承担（对照 Preflight 第 2 步的必答项）？有 → 改为更新那个 skill，不新建叠床架屋的入口。
 
 ### 3. Initialize
 

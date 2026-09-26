@@ -5,6 +5,8 @@
 检查 frontmatter、Markdown 断链、锚点和 README 名单一致性。
 名单项若已标注「公开仓不含」，在派生公开副本中缺失属预期，只报 INFO 不报 WARN。
 machine/ 下的软件文件（由 MACHINE.md 管理、不入 README 名单）只参与断链与锚点检查。
+（2026-09-26：曾把各 skill 的 references/、assets/ 一并纳入断链检查，代码保留在
+collect_link_only()，但按用户口径「不要自动检查、检查由我给出」**当前未启用**。）
 README 是当前的名单制格式，因此脚本不要求职责、加载位置或引用表。
 """
 
@@ -120,6 +122,32 @@ def collect(root):
             if os.path.isfile(path) and name.endswith(".md") and name not in SKIP_NAMES:
                 machine.append(path)
     return docs, skills, machine
+
+
+def collect_link_only(root):
+    """【当前未启用：用户 2026-09-26 口径「不要自动检查、检查由我给出」】skills/<name>/references/ 与 skills/<name>/assets/ 下的 Markdown（递归）。
+
+    这些文件只参与链接与锚点检查，不参与 frontmatter 与 README 名单一致性检查。
+    跳过以「.」开头的目录（如 .trash/），与 collect 的跳过口径一致。
+    """
+    link_only = []
+    skills_root = os.path.join(root, "skills")
+    if not os.path.isdir(skills_root):
+        return link_only
+    for skill_name in sorted(os.listdir(skills_root)):
+        skill_dir = os.path.join(skills_root, skill_name)
+        if not os.path.isdir(skill_dir):
+            continue
+        for sub in ("references", "assets"):
+            base = os.path.join(skill_dir, sub)
+            if not os.path.isdir(base):
+                continue
+            for dirpath, dirnames, filenames in os.walk(base):
+                dirnames[:] = sorted(d for d in dirnames if not d.startswith("."))
+                for name in sorted(filenames):
+                    if name.endswith(".md") and name not in SKIP_NAMES:
+                        link_only.append(os.path.join(dirpath, name))
+    return link_only
 
 
 def extract_links(text):
@@ -318,6 +346,8 @@ def main():
     report = Report()
     frontmatters, _ = check_frontmatter(paths, report)
     check_links(paths + machine, root, report)
+    # 2026-09-26：曾加 reference_docs（collect_link_only）把 references/assets 纳入断链检查；
+    # 按用户口径「不要自动检查、检查由我给出」已停用。需要时在上一行并入 reference_docs 即可。
     check_map(root, docs, skills, frontmatters, report)
 
     print(f"治理巡检目录：{root}")
@@ -330,7 +360,7 @@ def main():
             print(f"  [{check}] {path}: {message}")
     print("\n" + "=" * 72)
     print(f"ERROR {report.count('ERROR')} | WARN {report.count('WARN')} | INFO {report.count('INFO')}")
-    print("检查范围：根目录治理文件、各 skill 的 SKILL.md、machine/ 下软件文件（仅链接与锚点）、Markdown 链接/锚点和 README 名单。")
+    print("检查范围：根目录治理文件、各 skill 的 SKILL.md、machine/ 下软件文件、Markdown 链接/锚点和 README 名单。")
     return 1 if report.count("ERROR") else 0
 
 
