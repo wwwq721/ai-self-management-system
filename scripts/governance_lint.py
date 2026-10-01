@@ -4,7 +4,7 @@
 
 检查 frontmatter、Markdown 断链、锚点和 README 名单一致性。
 名单项若已标注「公开仓不含」，在派生公开副本中缺失属预期，只报 INFO 不报 WARN。
-machine/ 下的软件文件（由 MACHINE.md 管理、不入 README 名单）只参与断链与锚点检查。
+machine/ 下的机器事实文件（由 MACHINE.md 管理、不入 README 名单）只参与断链与锚点检查。
 （2026-09-26：曾把各 skill 的 references/、assets/ 一并纳入断链检查，代码保留在
 collect_link_only()，但按用户口径「不要自动检查、检查由我给出」**当前未启用**。）
 README 是当前的名单制格式，因此脚本不要求职责、加载位置或引用表。
@@ -112,15 +112,17 @@ def collect(root):
             if os.path.isfile(path):
                 skills.append(path)
 
-    # machine/ 下是软件环境文件，由 MACHINE.md 管理、不入 README 名单，
-    # 故只纳入链接与锚点检查——不参与 frontmatter 与名单一致性检查。
+    # machine/ 下是机器事实文件（双轴：_host/<机器标识名>/host.md 与 _host/<机器标识名>/<软件>.md、<软件>/common.md），
+    # 由 MACHINE.md 管理、不入 README 名单，故只纳入链接与锚点检查——
+    # 不参与 frontmatter 与名单一致性检查。**递归收集**，并跳过以「.」开头的目录（如 .trash/）。
     machine = []
     machine_root = os.path.join(root, "machine")
     if os.path.isdir(machine_root):
-        for name in sorted(os.listdir(machine_root)):
-            path = os.path.join(machine_root, name)
-            if os.path.isfile(path) and name.endswith(".md") and name not in SKIP_NAMES:
-                machine.append(path)
+        for cur, dirnames, filenames in os.walk(machine_root):
+            dirnames[:] = sorted(d for d in dirnames if not d.startswith("."))
+            for name in sorted(filenames):
+                if name.endswith(".md") and name not in SKIP_NAMES:
+                    machine.append(os.path.join(cur, name))
     return docs, skills, machine
 
 
@@ -303,6 +305,18 @@ def governance_skill_candidate(frontmatter):
     return None
 
 
+# 显式豁免：skill 名 → 判据理由。
+# 判据：治理型 skill 是「承载本治理体系运作职能」的（带触发条件、约束 AI 自身行为）；
+# 只是「工作对象包含治理文件」的属方法论／工具类，归「其他」，不进 README 名单。
+# 往这里加名字必须同时写清它为什么不符合治理型判据——写不出，说明该改判据而不是加名字。
+# （用户 2026-09-27 裁定 conversation-audit 归「其他」。）
+GOVERNANCE_SKILL_EXEMPT = {
+    "conversation-audit":
+        "方法论／工具类：它分析外部对话记录、产出对本机文件的改进建议，"
+        "不约束本体系的运作——description 里的「治理」指的是改进对象的范围，不是它的职能",
+}
+
+
 def check_map(root, docs, skills, frontmatters, report):
     map_path = os.path.join(root, "README.md")
     mapped_roots, mapped_skills, public_absent = parse_system_map(map_path)
@@ -327,7 +341,7 @@ def check_map(root, docs, skills, frontmatters, report):
         report.add("WARN", "map", "README.md", f"名单中的 skill 不存在：{name}")
     for path in skills:
         name = os.path.basename(os.path.dirname(path))
-        if name in mapped_skills:
+        if name in mapped_skills or name in GOVERNANCE_SKILL_EXEMPT:
             continue
         reason = governance_skill_candidate(frontmatters.get(path))
         if reason:
@@ -360,7 +374,7 @@ def main():
             print(f"  [{check}] {path}: {message}")
     print("\n" + "=" * 72)
     print(f"ERROR {report.count('ERROR')} | WARN {report.count('WARN')} | INFO {report.count('INFO')}")
-    print("检查范围：根目录治理文件、各 skill 的 SKILL.md、machine/ 下软件文件、Markdown 链接/锚点和 README 名单。")
+    print("检查范围：根目录治理文件、各 skill 的 SKILL.md、machine/ 下机器事实文件（递归）、Markdown 链接/锚点和 README 名单。")
     return 1 if report.count("ERROR") else 0
 
 

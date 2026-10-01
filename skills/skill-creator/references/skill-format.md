@@ -38,7 +38,7 @@ skill-name/
 | `metadata` | 可选；开放规范定义为字符串键到字符串值的映射，用于保存额外元数据；支持该字段的平台可将治理字段放在这里。 |
 | `allowed-tools` | 可选且实验性；开放规范使用空格分隔的预批准工具名，具体客户端可能不同。 |
 
-平台可能扩展字段或改变解析方式。不要把某个平台的扩展当成开放规范；目标平台为 CodeBuddy、WorkBuddy、Claude Code 或 ZCode 时，先查 [MACHINE.md](../../../MACHINE.md) §4 及对应软件文件。不要把平台事实复制进通用 Skill。本治理系统的 `metadata.importance` 等 typed 字段属于本地扩展；需要开放规范兼容时，按目标平台核实其编码方式，不把本地类型假定为标准行为。
+平台可能扩展字段或改变解析方式。不要把某个平台的扩展当成开放规范；目标平台为 CodeBuddy、WorkBuddy、Claude Code 或 ZCode 时，先查 [MACHINE.md](../../../MACHINE.md)「平台差异速查」及对应机器文件。不要把平台事实复制进通用 Skill。本治理系统的 `metadata.importance` 等 typed 字段属于本地扩展；需要开放规范兼容时，按目标平台核实其编码方式，不把本地类型假定为标准行为。
 
 `read_when` 不是开放规范字段。只有目标平台明确支持时，才按平台规定放入 metadata；`description` 仍是主要触发来源。
 

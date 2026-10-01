@@ -6,6 +6,8 @@
 # 2026-09-22 修：`/*.md` 少写 `!`，根治理文件其实从未进入放行名单——工作仓因这些
 # 文件早已被跟踪而看不出，只有新建仓库（派生公开副本）时才显形：静默漏掉 11 个根文件。
 !/.gitignore
+# 行尾口径由本文件固定（否则 CRLF 仅靠本机 core.autocrlf 维持，换机即变）
+!/.gitattributes
 !/*.md
 !/scripts/
 !/scripts/governance_lint.py
