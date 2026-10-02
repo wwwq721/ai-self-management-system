@@ -22,7 +22,7 @@ read_when:
 
 - 写作 `machine/_host/` → 指**本机**的主机文件夹里的机器级事实文件 `machine/_host/<机器标识名>/host.md`（**该目录未随公开仓上传**——派生公开仓里只有各 `<软件>/common.md` 与 [`machine/README.md`](machine/README.md)）。
 - 写作 `machine/<软件>/` → 指该软件的 `common.md`（跨机器共通）；该软件在**本机**的特化值在主机文件夹内 `machine/_host/<机器标识名>/<软件>.md`——**后者不存在即表示该软件在本机未装**（用文件存在性表达安装状态，不必另维护存在性表）。
-- **`<机器标识名>` 是自定义短名，不等于用户名**：形式为 `pc-` ＋ 用户名（ASCII 部分小写）。取本机用户名的三种等价方式——bash `$USERNAME`、PowerShell `$env:USERNAME`、Python `os.environ['USERNAME']`。当前两台机器：本机 `USERNAME=Administrator` ⇒ `pc-administrator`；另一台 `USERNAME=纳` ⇒ `pc-纳`。**不要把 `USERNAME` 原值直接当标识名（主机文件夹名）**（`Administrator` 是 Windows 默认管理员名，重名概率高）。推导结果与 [`machine/README.md`](machine/README.md) 索引表对不上时（用户名被改过、或命名不合约定），**以索引表的「识别特征」列为准**。
+- **`<机器标识名>` 是自定义短名，不等于用户名**：形式为 `pc-` ＋ 用户名（ASCII 部分小写）。取本机用户名的三种等价方式——bash `$USERNAME`、PowerShell `$env:USERNAME`、Python `os.environ['USERNAME']`。**具体有哪些机器、各机的标识名与识别特征，一律看 [`machine/README.md`](machine/README.md) 的机器清单**——本文件是**跨机器共享**的规范，**不写死的机器值**（写死就会在另一台上把「本机」指错）。**不要把 `USERNAME` 原值直接当标识名（主机文件夹名）**（`Administrator` 是 Windows 默认管理员名，重名概率高）。推导结果与 [`machine/README.md`](machine/README.md) 索引表对不上时（用户名被改过、或命名不合约定），**以索引表的「识别特征」列为准**。
 - 机器清单（标识名 ↔ 识别特征 ↔ 平台）的权威表在 [`machine/README.md`](machine/README.md)。
 - 本规则不含任何机器值，对每台机器同样成立。
 
